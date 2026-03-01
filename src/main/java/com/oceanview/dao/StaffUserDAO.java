@@ -12,7 +12,7 @@ public class StaffUserDAO {
     public StaffUser findByUsername(String username) {
         String sql = "SELECT id, username, password_hash, role, status FROM staff_users WHERE username = ?";
 
-        try (Connection conn = com.oceanview.dao.DBConnection.getInstance().getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -38,7 +38,7 @@ public class StaffUserDAO {
     public boolean insertStaffUser(String username, String passwordHash, String role) {
         String sql = "INSERT INTO staff_users (username, password_hash, role, status) VALUES (?, ?, ?, 'ACTIVE')";
 
-        try (Connection conn = com.oceanview.dao.DBConnection.getInstance().getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);

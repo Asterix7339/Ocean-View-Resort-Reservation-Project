@@ -7,13 +7,13 @@ import java.security.SecureRandom;
 
 public class PasswordUtil {
 
-
+    // BCrypt uses only first 72 bytes of the password
     private static final int MAX_PASSWORD_BYTES = 72;
 
-
+    // BCrypt salt size is 16 bytes
     private static final int SALT_BYTES = 16;
 
-
+    // Cost factor (work factor)
     private static final int COST = 12;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -26,7 +26,7 @@ public class PasswordUtil {
         byte[] salt = new byte[SALT_BYTES];
         SECURE_RANDOM.nextBytes(salt);
 
-
+        // BouncyCastle BCrypt
         return OpenBSDBCrypt.generate(plainPassword.toCharArray(), salt, COST);
     }
 
