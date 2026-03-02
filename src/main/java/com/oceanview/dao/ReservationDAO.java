@@ -5,6 +5,12 @@ import com.oceanview.model.Reservation;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class ReservationDAO {
 
@@ -63,5 +69,84 @@ public class ReservationDAO {
         }
 
         return null;
+    }
+    public java.util.List<Reservation> findTodayCheckIns() {
+        String sql = "SELECT id, reservation_number, guest_name, address, contact_number, room_type_id, check_in, check_out, total_amount " +
+                "FROM reservations WHERE check_in = CURDATE() ORDER BY reservation_number";
+
+        java.util.List<Reservation> list = new java.util.ArrayList<>();
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Reservation r = new Reservation();
+                r.setId(rs.getInt("id"));
+                r.setReservationNumber(rs.getString("reservation_number"));
+                r.setGuestName(rs.getString("guest_name"));
+                r.setAddress(rs.getString("address"));
+                r.setContactNumber(rs.getString("contact_number"));
+                r.setRoomTypeId(rs.getInt("room_type_id"));
+                r.setCheckIn(rs.getDate("check_in"));
+                r.setCheckOut(rs.getDate("check_out"));
+                r.setTotalAmount(rs.getDouble("total_amount"));
+                list.add(r);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    public java.util.List<Reservation> findAllOrSearch(String keyword) {
+
+        java.util.List<Reservation> list = new java.util.ArrayList<>();
+
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        String sql;
+
+        if (!hasKeyword) {
+            sql = "SELECT id, reservation_number, guest_name, address, contact_number, room_type_id, check_in, check_out, total_amount " +
+                    "FROM reservations ORDER BY id DESC";
+        } else {
+            sql = "SELECT id, reservation_number, guest_name, address, contact_number, room_type_id, check_in, check_out, total_amount " +
+                    "FROM reservations " +
+                    "WHERE reservation_number LIKE ? OR guest_name LIKE ? OR contact_number LIKE ? " +
+                    "ORDER BY id DESC";
+        }
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (hasKeyword) {
+                String k = "%" + keyword.trim() + "%";
+                ps.setString(1, k);
+                ps.setString(2, k);
+                ps.setString(3, k);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Reservation r = new Reservation();
+                    r.setId(rs.getInt("id"));
+                    r.setReservationNumber(rs.getString("reservation_number"));
+                    r.setGuestName(rs.getString("guest_name"));
+                    r.setAddress(rs.getString("address"));
+                    r.setContactNumber(rs.getString("contact_number"));
+                    r.setRoomTypeId(rs.getInt("room_type_id"));
+                    r.setCheckIn(rs.getDate("check_in"));
+                    r.setCheckOut(rs.getDate("check_out"));
+                    r.setTotalAmount(rs.getDouble("total_amount"));
+                    list.add(r);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }
