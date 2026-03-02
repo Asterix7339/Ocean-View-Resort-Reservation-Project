@@ -15,6 +15,15 @@ public class ReservationApiServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("username") == null) {
+            resp.setStatus(401);
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"error\":\"Unauthorized. Please login.\"}");
+            return;
+        }
+
         String number = req.getParameter("number");
         if (number == null || number.trim().isEmpty()) {
             resp.setStatus(400);
