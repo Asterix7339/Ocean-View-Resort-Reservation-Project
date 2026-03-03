@@ -149,4 +149,43 @@ public class ReservationDAO {
 
         return list;
     }
+    public boolean updateByReservationNumber(Reservation r) {
+
+        String sql = "UPDATE reservations SET guest_name=?, address=?, contact_number=?, room_type_id=?, check_in=?, check_out=? " +
+                "WHERE reservation_number=?";
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, r.getGuestName());
+            ps.setString(2, r.getAddress());
+            ps.setString(3, r.getContactNumber());
+            ps.setInt(4, r.getRoomTypeId());
+            ps.setDate(5, r.getCheckIn());
+            ps.setDate(6, r.getCheckOut());
+            ps.setString(7, r.getReservationNumber());
+
+            return ps.executeUpdate() == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean deleteByReservationNumber(String reservationNumber) {
+
+        String sql = "DELETE FROM reservations WHERE reservation_number=?";
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, reservationNumber);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
