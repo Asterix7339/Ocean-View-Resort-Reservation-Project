@@ -1,9 +1,9 @@
-package com.oceanview.web;
+package com.oceanview.controller;
 
-import com.oceanview.dao.ReservationDAO;
 import com.oceanview.model.Reservation;
+import com.oceanview.service.ReservationService;
+import com.oceanview.service.impl.ReservationServiceImpl;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
@@ -13,10 +13,10 @@ import java.sql.Date;
 @WebServlet("/add-reservation")
 public class AddReservationServlet extends HttpServlet {
 
-    private final ReservationDAO reservationDAO = new ReservationDAO();
+    private final ReservationService reservationService = new ReservationServiceImpl();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         // Must be logged in
         HttpSession session = req.getSession(false);
@@ -34,17 +34,11 @@ public class AddReservationServlet extends HttpServlet {
         String checkInStr = req.getParameter("checkIn");
         String checkOutStr = req.getParameter("checkOut");
 
-        // Basic validation
-        if (isEmpty(reservationNumber) || isEmpty(guestName) || isEmpty(address) || isEmpty(contactNumber)
-                || isEmpty(roomTypeIdStr) || isEmpty(checkInStr) || isEmpty(checkOutStr)) {
-            resp.sendRedirect("reservation-error.jsp");
-            return;
-        }
-
+        // Convert roomTypeId + dates (conversion stays in controller)
         int roomTypeId;
         try {
             roomTypeId = Integer.parseInt(roomTypeIdStr);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             resp.sendRedirect("reservation-error.jsp");
             return;
         }
@@ -59,24 +53,18 @@ public class AddReservationServlet extends HttpServlet {
             return;
         }
 
-        // Date rule: check-out must be after check-in
-        if (!checkOut.after(checkIn)) {
-            resp.sendRedirect("reservation-error.jsp");
-            return;
-        }
-
-        // Create object
+        // Build model
         Reservation r = new Reservation();
-        r.setReservationNumber(reservationNumber.trim());
-        r.setGuestName(guestName.trim());
-        r.setAddress(address.trim());
-        r.setContactNumber(contactNumber.trim());
+        r.setReservationNumber(trim(reservationNumber));
+        r.setGuestName(trim(guestName));
+        r.setAddress(trim(address));
+        r.setContactNumber(trim(contactNumber));
         r.setRoomTypeId(roomTypeId);
         r.setCheckIn(checkIn);
         r.setCheckOut(checkOut);
-        r.setTotalAmount(0); // bill will be calculated later
+        r.setTotalAmount(0);
 
-        boolean saved = reservationDAO.insert(r);
+        boolean saved = reservationService.addReservation(r);
 
         if (saved) {
             resp.sendRedirect("reservation-success.jsp");
@@ -85,7 +73,7 @@ public class AddReservationServlet extends HttpServlet {
         }
     }
 
-    private boolean isEmpty(String s) {
-        return s == null || s.trim().isEmpty();
+    private String trim(String s) {
+        return s == null ? null : s.trim();
     }
 }
