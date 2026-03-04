@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Date;
 
 @WebServlet("/add-reservation")
@@ -34,22 +35,36 @@ public class AddReservationServlet extends HttpServlet {
         String checkInStr = req.getParameter("checkIn");
         String checkOutStr = req.getParameter("checkOut");
 
-        // Convert roomTypeId + dates (conversion stays in controller)
+        // Convert roomTypeId
         int roomTypeId;
         try {
             roomTypeId = Integer.parseInt(roomTypeIdStr);
         } catch (Exception e) {
-            resp.sendRedirect("reservation-error.jsp");
+
+            String msg = URLEncoder.encode(
+                    "Reservation failed - Invalid room type.",
+                    "UTF-8"
+            );
+
+            resp.sendRedirect("add-reservation.jsp?error=" + msg);
             return;
         }
 
+        // Convert dates
         Date checkIn;
         Date checkOut;
+
         try {
             checkIn = Date.valueOf(checkInStr);
             checkOut = Date.valueOf(checkOutStr);
         } catch (Exception e) {
-            resp.sendRedirect("reservation-error.jsp");
+
+            String msg = URLEncoder.encode(
+                    "Reservation failed - Invalid dates.",
+                    "UTF-8"
+            );
+
+            resp.sendRedirect("add-reservation.jsp?error=" + msg);
             return;
         }
 
@@ -67,9 +82,26 @@ public class AddReservationServlet extends HttpServlet {
         boolean saved = reservationService.addReservation(r);
 
         if (saved) {
-            resp.sendRedirect("reservation-success.jsp");
+
+            String msg = URLEncoder.encode(
+                    "Reservation added successfully (" + r.getReservationNumber() + "). Bill generated.",
+                    "UTF-8"
+            );
+
+            resp.sendRedirect(
+                    "reports?action=bill&reservationNumber="
+                            + r.getReservationNumber()
+                            + "&success=" + msg
+            );
+
         } else {
-            resp.sendRedirect("reservation-error.jsp");
+
+            String msg = URLEncoder.encode(
+                    "Reservation failed - Please check details (duplicate number / dates / fields).",
+                    "UTF-8"
+            );
+
+            resp.sendRedirect("add-reservation.jsp?error=" + msg);
         }
     }
 
