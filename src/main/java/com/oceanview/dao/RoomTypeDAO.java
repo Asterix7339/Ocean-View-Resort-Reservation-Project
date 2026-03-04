@@ -48,4 +48,23 @@ public class RoomTypeDAO {
 
         return "UNKNOWN";
     }
+    public boolean updateTotalRooms(int roomTypeId, int totalRooms) {
+
+        String sql = "INSERT INTO room_stock (room_type_id, total_rooms) " +
+                "VALUES (?, ?) " +
+                "ON DUPLICATE KEY UPDATE total_rooms = VALUES(total_rooms)";
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, roomTypeId);
+            ps.setInt(2, totalRooms);
+
+            return ps.executeUpdate() >= 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
