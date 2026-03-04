@@ -1,7 +1,5 @@
 package com.oceanview.dao;
-
 import com.oceanview.model.Reservation;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
