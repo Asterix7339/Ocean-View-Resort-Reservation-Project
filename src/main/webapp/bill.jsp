@@ -10,10 +10,12 @@
     <title>Calculate Bill</title>
 </head>
 <body>
+<jsp:include page="includes/navbar.jsp" />
 
 <h2>Calculate & Print Bill</h2>
 
-<form method="get" action="calculate-bill">
+<form method="get" action="reports">
+    <input type="hidden" name="action" value="bill" />
     <label>Reservation Number:</label>
     <input type="text" name="reservationNumber" required />
     <button type="submit">Calculate Bill</button>
