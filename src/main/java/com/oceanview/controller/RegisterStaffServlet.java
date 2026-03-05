@@ -1,4 +1,4 @@
-package com.oceanview.web;
+package com.oceanview.controller;
 
 import com.oceanview.dao.StaffUserDAO;
 import com.oceanview.model.StaffUser;
@@ -7,6 +7,7 @@ import com.oceanview.util.PasswordUtil;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @WebServlet("/register-receptionist") // keep this because your form action uses it
 public class RegisterStaffServlet extends HttpServlet {
@@ -26,7 +27,7 @@ public class RegisterStaffServlet extends HttpServlet {
         // Must be ADMIN (server-side protection)
         String currentRole = (String) session.getAttribute("role");
         if (!"ADMIN".equals(currentRole)) {
-            resp.sendRedirect("access-denied.jsp");
+            resp.sendRedirect("dashboard.jsp?error=" + enc("Access denied - Admin only."));
             return;
         }
 
@@ -36,22 +37,23 @@ public class RegisterStaffServlet extends HttpServlet {
 
         // Basic validation
         if (isEmpty(username) || isEmpty(password) || isEmpty(role)) {
-            resp.sendRedirect("staff-create-error.jsp");
+            resp.sendRedirect("register-receptionist.jsp?error=" + enc("Please fill all fields."));
             return;
         }
 
+        username = username.trim();
         role = role.trim().toUpperCase();
 
-        // Only allow these two roles (important!)
+        // Only allow these two roles
         if (!"ADMIN".equals(role) && !"RECEPTIONIST".equals(role)) {
-            resp.sendRedirect("staff-create-error.jsp");
+            resp.sendRedirect("register-receptionist.jsp?error=" + enc("Invalid role selected."));
             return;
         }
 
         // Check duplicate username
-        StaffUser existing = staffUserDAO.findByUsername(username.trim());
+        StaffUser existing = staffUserDAO.findByUsername(username);
         if (existing != null) {
-            resp.sendRedirect("staff-create-error.jsp");
+            resp.sendRedirect("register-receptionist.jsp?error=" + enc("Username already exists: " + username));
             return;
         }
 
@@ -60,20 +62,24 @@ public class RegisterStaffServlet extends HttpServlet {
         try {
             hash = PasswordUtil.hashPassword(password);
         } catch (IllegalArgumentException ex) {
-            resp.sendRedirect("staff-create-error.jsp");
+            resp.sendRedirect("register-receptionist.jsp?error=" + enc("Password is invalid (too long)."));
             return;
         }
 
-        boolean ok = staffUserDAO.insertStaffUser(username.trim(), hash, role);
+        boolean ok = staffUserDAO.insertStaffUser(username, hash, role);
 
         if (ok) {
-            resp.sendRedirect("staff-create-success.jsp");
+            resp.sendRedirect("register-receptionist.jsp?success=" + enc("Staff created (" + username + " - " + role + ")"));
         } else {
-            resp.sendRedirect("staff-create-error.jsp");
+            resp.sendRedirect("register-receptionist.jsp?error=" + enc("Database error. Please try again."));
         }
     }
 
     private boolean isEmpty(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private String enc(String msg) throws IOException {
+        return URLEncoder.encode(msg, "UTF-8");
     }
 }
