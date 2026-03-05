@@ -14,12 +14,21 @@ import java.sql.Date;
 @WebServlet("/reservation")
 public class ReservationControllerServlet extends HttpServlet {
 
-    private final ReservationDAO reservationDAO = new ReservationDAO();
+    private final ReservationDAO reservationDAO;
+
+    // Default constructor (real app)
+    public ReservationControllerServlet() {
+        this.reservationDAO = new ReservationDAO();
+    }
+
+    // Constructor for tests
+    public ReservationControllerServlet(ReservationDAO reservationDAO) {
+        this.reservationDAO = reservationDAO;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        // Must be logged in
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             resp.sendRedirect("login.jsp");
@@ -43,8 +52,7 @@ public class ReservationControllerServlet extends HttpServlet {
                 break;
 
             default:
-                String msg = enc("Invalid action.");
-                resp.sendRedirect("all-reservations?error=" + msg);
+                resp.sendRedirect("all-reservations?error=" + enc("Invalid action."));
                 break;
         }
     }
@@ -52,7 +60,6 @@ public class ReservationControllerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 
-        // Must be logged in
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             resp.sendRedirect("login.jsp");
@@ -65,8 +72,7 @@ public class ReservationControllerServlet extends HttpServlet {
         if ("update".equals(action)) {
             handleUpdate(req, resp);
         } else {
-            String msg = enc("Invalid action.");
-            resp.sendRedirect("all-reservations?error=" + msg);
+            resp.sendRedirect("all-reservations?error=" + enc("Invalid action."));
         }
     }
 
@@ -133,7 +139,6 @@ public class ReservationControllerServlet extends HttpServlet {
         String checkInStr = req.getParameter("checkIn");
         String checkOutStr = req.getParameter("checkOut");
 
-        // validate required
         if (isEmpty(reservationNumber) || isEmpty(guestName) || isEmpty(address) || isEmpty(contactNumber)
                 || isEmpty(roomTypeIdStr) || isEmpty(checkInStr) || isEmpty(checkOutStr)) {
 

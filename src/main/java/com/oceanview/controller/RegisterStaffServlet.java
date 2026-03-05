@@ -9,22 +9,30 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-@WebServlet("/register-receptionist") // keep this because your form action uses it
+@WebServlet("/register-receptionist")
 public class RegisterStaffServlet extends HttpServlet {
 
-    private final StaffUserDAO staffUserDAO = new StaffUserDAO();
+    private final StaffUserDAO staffUserDAO;
+
+    // Default constructor (real app)
+    public RegisterStaffServlet() {
+        this.staffUserDAO = new StaffUserDAO();
+    }
+
+    // Constructor for tests
+    public RegisterStaffServlet(StaffUserDAO staffUserDAO) {
+        this.staffUserDAO = staffUserDAO;
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        // Must be logged in
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             resp.sendRedirect("login.jsp");
             return;
         }
 
-        // Must be ADMIN (server-side protection)
         String currentRole = (String) session.getAttribute("role");
         if (!"ADMIN".equals(currentRole)) {
             resp.sendRedirect("dashboard.jsp?error=" + enc("Access denied - Admin only."));
@@ -35,7 +43,6 @@ public class RegisterStaffServlet extends HttpServlet {
         String password = req.getParameter("password");
         String role = req.getParameter("role");
 
-        // Basic validation
         if (isEmpty(username) || isEmpty(password) || isEmpty(role)) {
             resp.sendRedirect("register-receptionist.jsp?error=" + enc("Please fill all fields."));
             return;
@@ -44,20 +51,17 @@ public class RegisterStaffServlet extends HttpServlet {
         username = username.trim();
         role = role.trim().toUpperCase();
 
-        // Only allow these two roles
         if (!"ADMIN".equals(role) && !"RECEPTIONIST".equals(role)) {
             resp.sendRedirect("register-receptionist.jsp?error=" + enc("Invalid role selected."));
             return;
         }
 
-        // Check duplicate username
         StaffUser existing = staffUserDAO.findByUsername(username);
         if (existing != null) {
             resp.sendRedirect("register-receptionist.jsp?error=" + enc("Username already exists: " + username));
             return;
         }
 
-        // Hash password
         String hash;
         try {
             hash = PasswordUtil.hashPassword(password);

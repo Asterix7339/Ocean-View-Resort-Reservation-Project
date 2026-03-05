@@ -10,19 +10,27 @@ import java.net.URLEncoder;
 @WebServlet("/update-room-stock")
 public class UpdateRoomStockServlet extends HttpServlet {
 
-    private final RoomTypeDAO roomTypeDAO = new RoomTypeDAO();
+    private final RoomTypeDAO roomTypeDAO;
+
+    // Default constructor (real app)
+    public UpdateRoomStockServlet() {
+        this.roomTypeDAO = new RoomTypeDAO();
+    }
+
+    // Constructor for tests
+    public UpdateRoomStockServlet(RoomTypeDAO roomTypeDAO) {
+        this.roomTypeDAO = roomTypeDAO;
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        // Must be logged in
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             resp.sendRedirect("login.jsp");
             return;
         }
 
-        // Must be ADMIN
         String role = (String) session.getAttribute("role");
         if (!"ADMIN".equals(role)) {
             resp.sendRedirect("dashboard.jsp?error=" + enc("Access denied - Admin only."));

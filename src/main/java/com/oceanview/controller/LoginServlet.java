@@ -12,7 +12,17 @@ import java.net.URLEncoder;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-    private final AuthService authService = new AuthServiceImpl();
+    private final AuthService authService;
+
+    // Default constructor (real app uses this)
+    public LoginServlet() {
+        this.authService = new AuthServiceImpl();
+    }
+
+    // Constructor for tests
+    public LoginServlet(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -27,12 +37,10 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Create session (logged in)
         HttpSession session = req.getSession(true);
         session.setAttribute("username", user.getUsername());
         session.setAttribute("role", user.getRole());
 
-        // Redirect with URL toast
         resp.sendRedirect("dashboard.jsp?success=" + enc("Login successful - Welcome, " + user.getUsername() + "!"));
     }
 
