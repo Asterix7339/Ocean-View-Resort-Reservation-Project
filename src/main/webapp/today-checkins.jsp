@@ -18,11 +18,12 @@
 <body>
 
 <h2>Today Check-ins Report</h2>
+<p><b>Total Today Check-ins:</b> <%= request.getAttribute("todayCheckinsCount") %></p>
 
 <%
     if (list == null || list.isEmpty()) {
 %>
-        <p>No check-ins for today </p>
+        <p>No check-ins for today ✅</p>
 <%
     } else {
 %>
