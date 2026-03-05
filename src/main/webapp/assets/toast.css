@@ -1,0 +1,97 @@
+/* Container for all toasts */
+#toast-root {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999; /* Above everything */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Base style for the notification */
+.ov-toast {
+    min-width: 300px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    color: #ffffff !important; /* Force white text */
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: block !important; /* Prevent Bootstrap from hiding it */
+    opacity: 1 !important;     /* Prevent transparency */
+    transition: all 0.3s ease;
+}
+
+/* SUCCESS: Solid Green Background */
+.ov-toast.success-style {
+    background-color: #198754 !important;
+}
+
+/* ERROR: Solid Red Background */
+.ov-toast.error-style {
+    background-color: #dc3545 !important;
+}/* Container for all toasts */
+ #toast-root {
+     position: fixed;
+     top: 20px;
+     right: 20px;
+     z-index: 99999; /* Above everything */
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+ }
+
+ /* Base style for the notification */
+ .ov-toast {
+     min-width: 300px;
+     padding: 16px 20px;
+     border-radius: 8px;
+     color: #ffffff !important; /* Force white text */
+     font-weight: 600;
+     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+     display: block !important; /* Prevent Bootstrap from hiding it */
+     opacity: 1 !important;     /* Prevent transparency */
+     transition: all 0.3s ease;
+ }
+
+ /* SUCCESS: Solid Green Background */
+ .ov-toast.success-style {
+     background-color: #198754 !important;
+ }
+
+ /* ERROR: Solid Red Background */
+ .ov-toast.error-style {
+     background-color: #dc3545 !important;
+ }/* Container for all toasts */
+  #toast-root {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 99999; /* Above everything */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  /* Base style for the notification */
+  .ov-toast {
+      min-width: 300px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      color: #ffffff !important; /* Force white text */
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: block !important; /* Prevent Bootstrap from hiding it */
+      opacity: 1 !important;     /* Prevent transparency */
+      transition: all 0.3s ease;
+  }
+
+  /* SUCCESS: Solid Green Background */
+  .ov-toast.success-style {
+      background-color: #198754 !important;
+  }
+
+  /* ERROR: Solid Red Background */
+  .ov-toast.error-style {
+      background-color: #dc3545 !important;
+  }
