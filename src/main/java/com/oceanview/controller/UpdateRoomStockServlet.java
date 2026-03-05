@@ -5,6 +5,7 @@ import com.oceanview.dao.RoomTypeDAO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @WebServlet("/update-room-stock")
 public class UpdateRoomStockServlet extends HttpServlet {
@@ -24,7 +25,7 @@ public class UpdateRoomStockServlet extends HttpServlet {
         // Must be ADMIN
         String role = (String) session.getAttribute("role");
         if (!"ADMIN".equals(role)) {
-            resp.sendRedirect("access-denied.jsp");
+            resp.sendRedirect("dashboard.jsp?error=" + enc("Access denied - Admin only."));
             return;
         }
 
@@ -38,21 +39,26 @@ public class UpdateRoomStockServlet extends HttpServlet {
             roomTypeId = Integer.parseInt(roomTypeIdStr);
             totalRooms = Integer.parseInt(totalRoomsStr);
         } catch (Exception e) {
-            resp.sendRedirect("room-stock-error.jsp");
+            resp.sendRedirect("manage-room-stock.jsp?error=" + enc("Update failed - invalid input."));
             return;
         }
 
         if (roomTypeId <= 0 || totalRooms < 0) {
-            resp.sendRedirect("room-stock-error.jsp");
+            resp.sendRedirect("manage-room-stock.jsp?error=" + enc("Update failed - total rooms must be 0 or more."));
             return;
         }
 
         boolean ok = roomTypeDAO.updateTotalRooms(roomTypeId, totalRooms);
 
         if (ok) {
-            resp.sendRedirect("room-stock-success.jsp");
+            resp.sendRedirect("manage-room-stock.jsp?success=" +
+                    enc("Room stock updated (Type ID: " + roomTypeId + ", Total: " + totalRooms + ")"));
         } else {
-            resp.sendRedirect("room-stock-error.jsp");
+            resp.sendRedirect("manage-room-stock.jsp?error=" + enc("Update failed - database error."));
         }
+    }
+
+    private String enc(String msg) throws IOException {
+        return URLEncoder.encode(msg, "UTF-8");
     }
 }
