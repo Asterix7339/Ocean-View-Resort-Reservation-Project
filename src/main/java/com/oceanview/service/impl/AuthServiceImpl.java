@@ -7,22 +7,29 @@ import com.oceanview.util.PasswordUtil;
 
 public class AuthServiceImpl implements AuthService {
 
-    private final StaffUserDAO staffUserDAO = new StaffUserDAO();
+    private final StaffUserDAO staffUserDAO;
+
+    // Default constructor (used in your real app)
+    public AuthServiceImpl() {
+        this.staffUserDAO = new StaffUserDAO();
+    }
+
+    // Constructor for testing (inject DAO)
+    public AuthServiceImpl(StaffUserDAO staffUserDAO) {
+        this.staffUserDAO = staffUserDAO;
+    }
 
     @Override
     public StaffUser login(String username, String password) {
 
-        // basic validation
         if (username == null || username.trim().isEmpty()) return null;
         if (password == null || password.trim().isEmpty()) return null;
 
         StaffUser user = staffUserDAO.findByUsername(username.trim());
         if (user == null) return null;
 
-        // status check
         if (!"ACTIVE".equals(user.getStatus())) return null;
 
-        // password check
         try {
             boolean ok = PasswordUtil.verifyPassword(password, user.getPasswordHash());
             if (!ok) return null;
@@ -30,6 +37,6 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
 
-        return user; // success
+        return user;
     }
 }
